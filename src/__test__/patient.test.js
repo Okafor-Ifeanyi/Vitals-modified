@@ -6,8 +6,10 @@ require('dotenv').config()
 const app = createServer(); 
 
 const { patientPayload,
+        wrongPassword,
         loginInput,
-        userInput, 
+        userInput,
+        userUpdate, 
         userInput_NoPhoneNumber, 
         userInput_wrongConfirmPassword, 
         userInput_existingPhoneNumber } = require("./body")
@@ -46,7 +48,8 @@ describe( "test how to register a user", () => {
         })
     })
 
-    describe("testing user registration", () => {
+    describe("Testing Patient Route", () => {
+        // Register
         test("Register user", async () => {
             const result = await supertest(app)
                     .post("/vitals/patients/register")
@@ -73,14 +76,35 @@ describe( "test how to register a user", () => {
             expect(result.body.message).toBe('Patient data already exists')
         })
 
+        // Login
+        test("Login email not found", async () => {
+            const result = await supertest(app)
+                .post("/vitals/patients/login")
+                .send({email: "eeddr@gmail.com", password: "jj90kko"})
+
+            expect(result.statusCode).toBe(404)
+            expect(result.body).toEqual({
+                message: "Patient does not exist"
+            })
+        })
+
+        test("Login Incorrect Password", async () => {
+            const result = await supertest(app)
+                .post("/vitals/patients/login")
+                .send(wrongPassword)
+            
+            expect(result.statusCode).toBe(400)
+            expect(result.body).toEqual({
+                message: "Incorrect Password",
+            })
+        })
+
         const value = {}
-        test("Login User", async () => {
+        test("Login patient Successful", async () => {
             const result = await supertest(app)
                 .post("/vitals/patients/login")
                 .send(loginInput)
-
             
-            // console.log(result.body)
             value.key1 = result.body.Patient_ID;
             value.key2 = result.body.token
             expect(result.statusCode).toBe(200)
@@ -89,21 +113,96 @@ describe( "test how to register a user", () => {
                 Token_Type: "Bearer",
                 Patient_ID: expect.any(String)
             })
-            // console.log(value)
         })
 
-        // test("Get user", async () => {
-        //     console.log(value.key1)
-        //     // console.log(value)
-
-        //     const result = await supertest(app)
-        //             .delete(`/vitals/patients/wipe/${value.key1}`)
+        // Get user
+        test("Get my profile as a patient", async () => {
+            const result = await supertest(app)
+                    .get(`/vitals/patients/`)
+                    .set('Authorization', `Bearer ${value.key2}`)
             
-        //     console.log(result)
-        //     expect(result.statusCode).toBe(200)
-        //     expect(result.body.message).toBe('Patient deleted successfully')
-        // })
+            // Assertions on the response
+            expect(result.status).toBe(201);
+            expect(result.body).toMatchObject({ success: true });
+        })
 
+        test("Get patient by email", async () => {
+            const result = await supertest(app)
+                    .get(`/vitals/patients/email/${userInput.email}`)
+            
+            // Assertions on the response
+            expect(result.status).toBe(201);
+            expect(result.body).toMatchObject({ success: true });
+        })
+
+        test("Get patient by id", async () => {
+            const result = await supertest(app)
+                    .get(`/vitals/patients/${value.key1}`)
+            
+            // Assertions on the response
+            expect(result.status).toBe(201);
+            expect(result.body).toMatchObject({ success: true }); 
+        })
+
+        // Health Record
+        test("Get all patient's health Records", async () => {
+            const result = await supertest(app)
+                    .get(`/vitals/patients/healthRecords`)
+                    .set('Authorization', `Bearer ${value.key2}`)
+            
+            // Assertions on the response
+            expect(result.status).toBe(201);
+            expect(result.body).toMatchObject({ 
+                success: true, 
+                Total_Count: expect.any(Number) 
+            });
+        })
+
+        // Update
+        test("Update User", async () => {
+            const result = await supertest(app)
+                    .patch(`/vitals/patients/`)
+                    .set('Authorization', `Bearer ${value.key2}`)
+                    .send(userUpdate)
+            
+            // Assertions on the response
+            expect(result.status).toBe(200);
+            expect(result.body).toMatchObject({ success: true }); // Replace this with your expected response body
+        })
+
+        test("Update User with exsisting email", async () => {
+            const result = await supertest(app)
+                    .patch(`/vitals/patients/`)
+                    .set('Authorization', `Bearer ${value.key2}`)
+                    .send(userUpdate)
+            
+            // Assertions on the response
+            expect(result.status).toBe(403);
+            expect(result.body).toMatchObject({ success: false }); // Replace this with your expected response body
+        })
+
+        // Delete
+        test("Delete User", async () => {
+            const result = await supertest(app)
+                    .delete(`/vitals/patients/`)
+                    .set('Authorization', `Bearer ${value.key2}`)
+            
+            // Assertions on the response
+            expect(result.status).toBe(200);
+            expect(result.body).toMatchObject({ success: true }); // Replace this with your expected response body
+        })
+
+        test("Delete already deleted User", async () => {
+            const result = await supertest(app)
+                    .delete(`/vitals/patients/`)
+                    .set('Authorization', `Bearer ${value.key2}`)
+            
+            // Assertions on the response
+            expect(result.status).toBe(404);
+            expect(result.body).toMatchObject({ message: "Patient does not exist" }); // Replace this with your expected response body
+        })
+
+        // Wipe
         test("Wipe user", async () => {
             console.log(value.key1)
             // console.log(value)
@@ -125,29 +224,4 @@ describe( "test how to register a user", () => {
             expect(result.body.message).toBe("Patient does not exist. Literally!!")
         })
     })
-
-
-    // it('GET /api/books - success -  get all the books ', async () => {
-	// 	const { body, statusCode } = await request(app).get('/api/books');
-
-	// 	expect(body).toEqual(
-	// 		expect.arrayContaining([
-	// 			expect.objectContaining({
-	// 				id: expect.any(Number),
-	// 				name: expect.any(String),
-	// 				author: expect.any(String)
-	// 			})
-	// 		])
-	// 	);
-
-	// 	expect(statusCode).toBe(200);
-	// });
-    // validate the check if profile image is available
-    // generate verification code
-    // create patient
-    // should return a json object containing user id
-    // send verification code
-    // should respond with json in content header
-    // should send a status code of 200 
-    // check matching password
- })
+})
