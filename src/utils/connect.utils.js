@@ -11,7 +11,7 @@ async function connect () {
         family: 4,
     })
     .then(() => {
-        console.log("DB Connected TEst!!")
+        console.log("DB Connected !!")
     })
     .catch((err) => {
         console.log("There is an issue trying to connect to your database")

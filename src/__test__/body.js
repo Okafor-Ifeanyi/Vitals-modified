@@ -24,9 +24,22 @@ exports.userInput = {
     phoneNumber: "08196270120"
 }
 
+exports.userUpdate = {
+    firstName: "bio",
+    lastName: "Bio Bio",
+    email: "zeus@gmail.com",
+    blood_group: "A-",
+    genotype: "AA",
+}
+
 exports.loginInput = {
     email: "s54@gmail.com",
     password: "duttyy"
+}
+
+exports.wrongPassword = {
+    email: "s54@gmail.com",
+    password: "dutty33"
 }
 
 exports.userInput_existingPhoneNumber = {

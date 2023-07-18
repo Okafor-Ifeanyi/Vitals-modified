@@ -47,8 +47,8 @@ router.post("/verify/:email", validate(verifyCode), verifyPatient);
 router.get("/email/:email", getPatientByEmail);
 router.get("/:id", getpatientByID);
 
-// Verify Account
-router.get("/email/", getPatientByEmail);
+// // Verify Account
+// router.get("/email/", getPatientByEmail);
 
 
 module.exports = router;
