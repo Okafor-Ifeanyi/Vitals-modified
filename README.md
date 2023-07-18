@@ -1,5 +1,10 @@
 # Vitals - Decentralized Patient Record
 
+## **Disclaimer**
+ This documentation only covers the backend web application aspect of vitals and does not cover any blockchain related aspects such as the smart contract and Frontend aspect. This is also a personal continuation of this great work that was first started under [Learnable Organisation](https://github.com/learnable-2022) and sterred by a group of 14 great Minds (`6 Product Designers`, `4 Frontend Engineers`, `3 **Backend Engineers**` and `1 Web3 Engineer`).
+
+> This Modification contains futher Authentication and Integration Testing on the pre-existing work
+
 ## Prerequisites
 -   npm installed
 -   IDE eg _vscode_
@@ -7,16 +12,13 @@
 
 ## How to start code
 1.  Clone or Download repository
-2.  Setup .env file => `port`, `mongo_uri`, `jwt _secret`
+2.  Setup .env file => `port`, `mongo_uri`, `jwt _secret`, `cloudinary`
 2.  run `npm install`
 3.  run `npm start`
 >   DPR-12-BE is ready for use
 
 ## Model Diagram
 >   [Diagrams on dbdiagrams.io](https://dbdiagram.io/d/646c9bdcdca9fb07c49993a3)
-
-## User Flow
->   [Diagrams on Figma UML]()
 
 ## Live Server `@render`
 >   [Render Live](https://vitals-8myt.onrender.com)
