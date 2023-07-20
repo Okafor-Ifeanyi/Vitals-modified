@@ -41,7 +41,7 @@ const forgotPasswordSchema = joi.object().keys({
 });
 
 const verifyCode = joi.object().keys({
-  code: joi.string().required().max(6).min(6)
+  code: joi.number().required().max(6).min(6)
 });
 
 const resetPasswordSchema = joi.object().keys({

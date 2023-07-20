@@ -9,6 +9,7 @@ const { patientPayload,
         wrongPassword,
         loginInput,
         userInput,
+        invalidEmailInput,
         userUpdate, 
         userInput_NoPhoneNumber, 
         userInput_wrongConfirmPassword, 
@@ -42,9 +43,48 @@ describe( "test how to register a user", () => {
             const result = await supertest(app)
                     .post("/vitals/patients/register")
                     .send(userInput_NoPhoneNumber)
-            
             expect(result.statusCode).toBe(422)
             expect(result.body.error[0].message).toBe("\"phoneNumber\" is required")
+        })
+
+        test("Test invalid email", async () => {
+            const result = await supertest(app)
+                    .post("/vitals/patients/register")
+                    .send(invalidEmailInput)
+            
+            // console.log(result.body)
+            expect(result.statusCode).toBe(422)
+            expect(result.body.error[0].message).toBe("\"email\" must be a valid email")
+        })
+
+        test("Verification Code Schema", async () => {
+            const result = await supertest(app)
+                    .post("/vitals/patients/verify/s54@gmail.com")
+                    .send({code: 09754 })
+            
+            // console.log(result.body)
+            expect(result.statusCode).toBe(422)
+            expect(result.body.error[0].path).toBe("code")
+        })
+
+        test("Login Schema wrong email", async () => {
+            const result = await supertest(app)
+                    .post("/vitals/patients/login")
+                    .send({email: "moe.com", password: "ubduwda"})
+            
+            expect(result.statusCode).toBe(422)
+            expect(result.body.error[0].message)
+                .toBe('"email" must be a valid email')
+        })
+
+        test("Login Schema password min(6) ", async () => {
+            const result = await supertest(app)
+                    .post("/vitals/patients/login")
+                    .send({email: "moe@gmail.com", password: "ubd"})
+            
+            expect(result.statusCode).toBe(422)
+            expect(result.body.error[0].message)
+                .toBe('"password" length must be at least 6 characters long')
         })
     })
 
@@ -144,6 +184,16 @@ describe( "test how to register a user", () => {
             expect(result.body).toMatchObject({ success: true }); 
         })
 
+        test("Get all patients", async () => {
+            const result = await supertest(app)
+                    .get(`/vitals/patients//all`)
+                    .set('Authorization', `Bearer ${value.key2}`)
+
+            // Assertions on the response
+            expect(result.status).toBe(200);
+            expect(result.body).toMatchObject({ success: true }); 
+        })
+
         // Health Record
         test("Get all patient's health Records", async () => {
             const result = await supertest(app)
@@ -204,7 +254,7 @@ describe( "test how to register a user", () => {
 
         // Wipe
         test("Wipe user", async () => {
-            console.log(value.key1)
+            // console.log(value.key1)
             // console.log(value)
 
             const result = await supertest(app)
