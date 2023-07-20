@@ -24,6 +24,15 @@ exports.userInput = {
     phoneNumber: "08196270120"
 }
 
+exports.invalidEmailInput = {
+    firstName: "bio",
+    lastName: "Bio Bio",
+    email: "s54.com",
+    password: "duttyy",
+    confirm_password: "duttyy",
+    phoneNumber: "08196270120"
+}
+
 exports.userUpdate = {
     firstName: "bio",
     lastName: "Bio Bio",
