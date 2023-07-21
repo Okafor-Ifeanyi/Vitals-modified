@@ -11,7 +11,7 @@ const RegisterSchema = joi.object()
             .required()
             .label('Confirm password')
             .messages({ 'any.only': '{{#label}} does not match' }),
-        licenseNO: joi.string().max(11).required(),
+        licenseNO: joi.string().min(6).required(),
         specialty: joi.string().required()
     });
 
@@ -27,7 +27,6 @@ const UpdateSchema = joi.object()
         firstName: joi.string().required(),
         lastName: joi.string().required(),
         // email: joi.string().required().email(),
-        phone: joi.string(),
     });
 
 const hcpRefSchema = joi.object()

@@ -81,8 +81,8 @@ exports.login = async (req, res) => {
 
         res.status(200).json({
             token: token,
-            "Token Type": "Bearer",
-            "Doctor ID": existingDoctor._id
+            "Token_Type": "Bearer",
+            "Doctor_ID": existingDoctor._id
         })
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });
@@ -138,6 +138,26 @@ exports.deleteDoctor = async (req, res) => {
         res.status(403).json({ success: false, message: error.message })
     }
 }
+
+// Wipe a Doctor
+exports.wipeDoctor = async (req, res) => {
+    const _id = req.params.id
+  
+    try {
+      const existingDoctor = await doctorService.findOne({ _id });
+      if (!existingDoctor)
+        return res.status(404).json({ message: "doctor does not exist. Literally!!" });
+  
+      await doctorService.delete( _id ); // <= actually deletes the patient from the db
+  
+      return res.status(200).json({
+        success: true,
+        message: "doctor deleted successfully",
+      });
+    } catch (error) {
+      res.status(403).json({ success: false, message: error.message });
+    }
+  };
 
 // Fetch a single doctor by id
 exports.getDoctorByID = async (req, res) => {

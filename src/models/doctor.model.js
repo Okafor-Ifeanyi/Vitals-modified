@@ -43,10 +43,10 @@ const doctorSchema = new Schema({
     profile_img: {
         type: String,
     },
-    HCP_ID: {
-        type: Schema.Types.ObjectId,
-        ref: "providerModel"
-    },
+    // HCP_ID: {
+    //     type: Schema.Types.ObjectId,
+    //     ref: "providerModel"
+    // },
     deleted: {
         type: Boolean, required: true, default: false
     } 

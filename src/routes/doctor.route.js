@@ -12,6 +12,7 @@ const { register,
         login,
         updateDoctor,
         deleteDoctor,
+        wipeDoctor,
         getDoctorByID,
         getMyProfile,
         getHcpRequests,
@@ -29,6 +30,7 @@ router.post("/login", validate(LoginSchema), login);
 router.post("/register", validate(RegisterSchema), register);
 router.patch("/", validate(UpdateSchema), isAuth, updateDoctor);
 router.delete("/", isAuth, deleteDoctor);
+router.delete("/wipe/:id", isAuth, wipeDoctor);
 router.get("/", isAuth, getMyProfile);
 
 

@@ -248,11 +248,11 @@ async function sendMail(email, name, path) {
       }
     
      
-    mailTransport.sendMail(details, (err)=>{
+    await mailTransport.sendMail(details, (err)=>{
         if(err){
-            return res.status(401).json({ success: false, message: error.message })
-        } else {
-            console.log("email has been sent!")
+            console.log(err.message)
+        } else{
+            console.log("Email has been sent")
         }
     })
 }
