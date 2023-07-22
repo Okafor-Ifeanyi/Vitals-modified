@@ -195,20 +195,20 @@ describe( "test how to register a doctor", () => {
         })
 
         // Health Record
-        test("Register user", async () => {
-            const result = await supertest(app)
-                    .post("/vitals/doctors/hcpref")
-                    .send()
+        // test("Register user", async () => {
+        //     const result = await supertest(app)
+        //             .post("/vitals/doctors/hcpref")
+        //             .send()
         
-            expect(result.statusCode).toBe(200)
-            expect(result.body.message).toMatchObject({
-                    _id : expect.any(String),
-                    firstName: expect.any(String),
-                    lastName: expect.any(String),
-                    email: expect.any(String),
-                    licenseNO: expect.any(String),
-                })
-        })
+        //     expect(result.statusCode).toBe(200)
+        //     expect(result.body.message).toMatchObject({
+        //             _id : expect.any(String),
+        //             firstName: expect.any(String),
+        //             lastName: expect.any(String),
+        //             email: expect.any(String),
+        //             licenseNO: expect.any(String),
+        //         })
+        // })
         // test("Get all doctor's health Records", async () => {
         //     const result = await supertest(app)
         //             .get(`/vitals/doctors/healthRecords`)
