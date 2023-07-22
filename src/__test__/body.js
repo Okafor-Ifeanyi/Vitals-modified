@@ -51,15 +51,6 @@ exports.wrongPassword = {
     password: "dutty33"
 }
 
-exports.userInput_existingPhoneNumber = {
-    firstName: "bio",
-    lastName: "Bio Bio",
-    email: "ser23@gmail.com",
-    password: "duttyy",
-    confirm_password: "duttyy",
-    phoneNumber: "08129741530"
-}
-
 exports.userInput_wrongConfirmPassword = {
     firstName: "bio",
     lastName: "Bio Bio",
@@ -75,4 +66,51 @@ exports.userInput_NoPhoneNumber = {
     email: "ser@gmail.com",
     password: "duttyy",
     confirm_password: "duttyy"
+}
+
+exports.doctorReg= {
+    firstName: "bio",
+    lastName: "Bio Bio",
+    email: "s54@gmail.com",
+    password: "duttyy",
+    confirm_password: "duttyy",
+    licenseNO: "MDCN/R/82426", 
+    specialty: "Nursing Services"
+}
+
+exports.invalidEmailDoctorReg= {
+    firstName: "bio",
+    lastName: "Bio Bio",
+    email: "ser.com",
+    password: "duttyy",
+    confirm_password: "duttyy",
+    licenceNO: "MDCN/R/82426",
+    specialty: "Nursing Services"
+}
+
+exports.doctorUpdate= {
+    firstName: "bio",
+    lastName: "Bio Bio",
+    email: "meet@gmail.com",
+}
+
+exports.doctorNoLicenceNO = {
+    firstName: "bio",
+    lastName: "Bio Bio",
+    email: "ser23@gmail.com",
+    password: "duttyy",
+    confirm_password: "duttyy",
+    phoneNumber: "08129741530",
+    specialty: "Nursing Services"
+}
+
+exports.doctorWrongConfirmPassword = {
+    firstName: "bio",
+    lastName: "Bio Bio",
+    email: "ser@gmail.com",
+    password: "duttyy",
+    confirm_password: "eerry",
+    phoneNumber: "08129741530",
+    licenceNO: "MDCN/R/82426",
+    specialty: "Nursing Services"
 }
