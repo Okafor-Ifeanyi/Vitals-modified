@@ -29,7 +29,7 @@ router.post("/login", validate(LoginSchema), login);
 router.post("/register", validate(RegisterSchema), register);
 router.patch("/", validate(UpdateSchema), isAuth, updatePatient);
 router.delete("/", isAuth, deletePatient);
-router.delete("/wipe/:id", wipePatient);
+router.delete("/wipe/:id", isAuth, wipePatient);
 router.get("/all", isAuth, fetchAllPatients);
 router.get("/", isAuth, getMyProfile);
 

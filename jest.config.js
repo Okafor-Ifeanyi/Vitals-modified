@@ -1,4 +1,5 @@
-// module.exports = {
-//     "preset": "@shelf/jest-mongodb",
-//     "verbose": true
-// }
+module.exports = {
+    "preset": "@shelf/jest-mongodb",
+    "verbose": true,
+    "transform": {}
+}
