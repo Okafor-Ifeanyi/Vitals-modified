@@ -13,7 +13,7 @@ exports.login = async (req, res) => {
 
     // console.log(registrationNo)
     try {
-        const existingHealthCareProvider = await HealthCareProviderService.findOne({ registrationNo })
+        const existingHealthCareProvider = await HealthCareProviderService.findOne({ registrationNo, deleted: false })
 
         if (!existingHealthCareProvider) return res.status(404).json({ message: "HealthCareProvider does not exist" });
 
@@ -24,14 +24,16 @@ exports.login = async (req, res) => {
 
         res.status(200).json({ 
             token: token,
-            "Token Type": "Bearer",
-            "HealthCareProvider ID": existingHealthCareProvider._id
+            Token_Type: "Bearer",
+            HealthCareProvider_ID: existingHealthCareProvider._id
         })
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
     
 }
+
+// register Health Care Provider
 exports.register = async (req, res) => {
     const HealthCareProviderInfo = req.body
 
@@ -104,13 +106,14 @@ exports.deleteHCP = async (req, res) => {
 
   try {
     const existingHCP = await HealthCareProviderService.findOne({ _id: req.user, deleted: false })
+    console.log(existingHCP)
     if (!existingHCP) return res.status(404).json({ message: "HealthCareProvider does not exist" });
 
     await HealthCareProviderService.update(req.user, { deleted: true }); // <= change delete status to 'true'
 
     return res.status(200).json({ 
         success: true, 
-        message: 'HealthCareProvider deleted successfully'});
+        message: 'HealthCareProvider deleted successfully' });
 
     } catch (error) {
         res.status(403).json({ success: false, message: error.message })                       
@@ -118,19 +121,41 @@ exports.deleteHCP = async (req, res) => {
 };
 
 // Delete healthCareProvider
+// Wipe a Patient
+exports.wipePatient = async (req, res) => {
+    const _id = req.params.id
+  
+    try {
+      const existingHCP = await HealthCareProviderService.findOne({ _id });
+      if (!existingHCP)
+        return res.status(404).json({ message: "Patient does not exist. Literally!!" });
+  
+      await patientService.delete( _id ); // <= actually deletes the patient from the db
+  
+      return res.status(200).json({
+        success: true,
+        message: "Patient deleted successfully",
+      });
+    } catch (error) {
+      res.status(403).json({ success: false, message: error.message });
+    }
+  };
+
 exports.wipeHCP = async (req, res) => {
     try {
-        const existingUser = await HealthCareProviderService.getAll({deleted: false})
-
+        console.log(req.user)
+        const existingUser = await HealthCareProviderService.getAll()
+        
         var hospital_id = [];
         for (let i = 0; i < existingUser.length; i++) {
             hospital_id.push(existingUser[i]._id.toString())
         }
+        console.log('hi')
+        await HealthCareProviderService.delete({ _id: hospital_id[hospital_id.length -1] });
 
-
-        for (let i = 6; i < hospital_id.length; i++) {
-            await HealthCareProviderService.delete({ _id: hospital_id[i] });
-        } 
+        // for (let i = 0; i < hospital_id.length; i++) {
+        //     await HealthCareProviderService.delete({ _id: hospital_id[i] });
+        // } 
 
         return res.status(200).json({ 
             success: true, 

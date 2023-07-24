@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "test": "jest --detectOpenHandles" 
+    "test": "jest" 
   },
   "keywords": [],
   "author": "",

@@ -41,7 +41,7 @@ router.get("/healthRecords", isAuth, healthCareProviderAuth, getAllHCPhealthReco
 router.get("/patients", isAuth, healthCareProviderAuth, getAllHCPsPatients);
 
 // Wipe out any existing
-router.delete("/wipe", isAuth, healthCareProviderAuth, wipeHCP);
+router.delete("/wipe", isAuth, wipeHCP);
 
 // Global Search
 router.get("/all", fetchAllHospitals);
