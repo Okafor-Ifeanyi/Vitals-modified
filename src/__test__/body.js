@@ -114,3 +114,50 @@ exports.doctorWrongConfirmPassword = {
     licenceNO: "MDCN/R/82426",
     specialty: "Nursing Services"
 }
+
+exports.hospitalReg= {
+    name: "bio",
+    password: "duttyy",
+    confirm_password: "duttyy",
+    address: "08129741530",
+    registrationNo: "MDCN/R/82426"
+}
+
+exports.hospitalLogin= {
+    registrationNo: "MDCN/R/82426",
+    password: "duttyy"
+}
+
+exports.hospitalWrongLogin= {
+    registrationNo: "MDCN/R/82426",
+    password: "duttyye"
+}
+
+exports.invalidRegNO= {
+    name: "bio",
+    password: "duttyy",
+    confirm_password: "duttyy",
+    address: "08129741530",
+    registrationNo: "MDCN/R/82426"
+}
+
+exports.hospitalUpdate= {
+    registrationNo: "MDCN/R/2426",
+    name: "ESUT",
+    address: "08129741530"
+}
+
+exports.hospitalNoRegistrationNO = {
+    name: "bio",
+    password: "duttyy",
+    confirm_password: "duttyy",
+    address: "08129741530",
+}
+
+exports.hospitalWrongConfirmPassword = {
+    name: "bio",
+    password: "duttyy",
+    confirm_password: "eerry",
+    address: "08129741530",
+    registrationNo: "MDCN/R/82426"
+}

@@ -68,7 +68,7 @@ exports.login = async (req, res) => {
     const { email, password } = req.body
 
     try {
-        const existingDoctor = await doctorService.findOne({ email })
+        const existingDoctor = await doctorService.findOne({ email, deleted: false })
         
         // const existingDoctor = await doctorService.createDoctor.findOne({ email })
 
