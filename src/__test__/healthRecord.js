@@ -186,7 +186,7 @@ describe( "test how to register a doctor", () => {
 
         test("Get all doctors", async () => {
             const result = await supertest(app)
-                    .get(`/vitals/doctors/all`)
+                    .get(`/vitals/doctors//all`)
                     .set('Authorization', `Bearer ${value.key2}`)
 
             // Assertions on the response
