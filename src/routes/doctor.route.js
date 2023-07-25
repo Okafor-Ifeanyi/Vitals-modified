@@ -21,6 +21,7 @@ const { register,
         getMyHcps,
         getAHcp,
         registerHCP,
+        wipeHcpRef,
         forgotPassword,
         resetPassword,
         fetchAllDoctors } = require('../controllers/doctor.controller');
@@ -42,6 +43,7 @@ router.put("/reset-password", validate(resetPasswordSchema), resetPassword);
 router.post("/hcpref", validate(hcpRefSchema), isAuth, doctorAuth, registerHCP);
 router.get("/req", isAuth, doctorAuth, getHcpRequests);
 router.get("/req/:id", isAuth, doctorAuth, grantHcpRequests);
+router.delete("/req/wipe", isAuth, wipeHcpRef);
 router.delete("/req/:id", isAuth, doctorAuth, removeHcp);
 
 // Health care provider funtionalities as a Doctor
