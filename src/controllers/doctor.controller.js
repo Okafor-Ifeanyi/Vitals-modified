@@ -197,6 +197,7 @@ exports.fetchAllDoctors = async (req, res) => {
     }
 }
 
+// Send a reqest application to a Health Care Provider(Hospital)
 exports.registerHCP = async (req, res) => {
     // hcpRef
     const Data = req.body
@@ -207,7 +208,7 @@ exports.registerHCP = async (req, res) => {
         const existingHcpRef = await hcpRefService.findOne({ HCP_id: Data.HCP_id, doctorID: req.user })
         
         if (existingHcpRef) {
-            return res.status(401).json({ Success: true, message: "This Request already Exists" });
+            return res.status(401).json({ Success: false, message: "This Request already Exists" });
         }
 
         const doctorRequest = await hcpRefService.createHcpRef({ HCP_id: Data.HCP_id, doctorID: req.user })
@@ -219,6 +220,28 @@ exports.registerHCP = async (req, res) => {
         res.status(403).json({ success: false, message: error.message })
     }
 }
+
+// Wipe an application from db
+exports.wipeHcpRef = async (req, res) => {
+    try {
+        console.log("Heloooo")
+        const existingUser = await hcpRefService.getAll()
+        
+        var application_id = [];
+        for (let i = 0; i < existingUser.length; i++) {
+            application_id.push(existingUser[i]._id.toString())
+        }
+       
+        await hcpRefService.delete({ _id: application_id[application_id.length -1] });
+
+        return res.status(200).json({ 
+            success: true, 
+            message: 'HcpRef Application deleted successfully'});
+        
+    } catch (error) {
+        res.status(403).json({ success: false, message: error.message })                       
+    }
+};
 
 // Forgot Password
 exports.forgotPassword = ( req, res) => {
@@ -321,7 +344,11 @@ exports.getHcpRequests = async (req, res) => {
     try {
         const hcpRequests = await hcpRefService.getAll({ doctorID, approvalState: false })
 
-        res.status(201).json({ success: true, message: 'List of Health Care Provider Requests', data: hcpRequests })
+        res.status(201).json({ 
+            success: true, 
+            message: 'List of Health Care Provider Requests', 
+            data: hcpRequests 
+        })
     } catch (error) {
         res.status(500).json({ "Success": false, "message": error.message });
     }
@@ -331,7 +358,8 @@ exports.getHcpRequests = async (req, res) => {
 exports.grantHcpRequests = async (req, res) => {
     const id = req.params.id
     try {
-        const existingHcpRef = await hcpRefService.findOne({ _id: id })
+        const existingHcpRef = await hcpRefService.findOne({ _id: id, awaiting: "Doctor" })
+        if (!existingHcpRef) return res.status(404).json({ success: false, message: "No pending request found" });
 
         // Verify if the editor is the owner and if the id exists
         if (req.user !== existingHcpRef.doctorID.toString()) {
@@ -355,7 +383,8 @@ exports.grantHcpRequests = async (req, res) => {
 exports.removeHcp = async (req, res) => {
     const id = req.params.id
     try {
-        const existingHcpRef = await hcpRefService.findOne({ _id: id })
+        const existingHcpRef = await hcpRefService.findOne({ _id: id, awaiting: "Doctor" })
+        if (!existingHcpRef) return res.status(404).json({ success: false, message: "No request found" });
 
         // Verify if the editor is the owner and if the id exists
         if (req.user !== existingHcpRef.HCP_id.toString()) {
@@ -368,7 +397,7 @@ exports.removeHcp = async (req, res) => {
         // Update the HCP ref
         await hcpRefService.update({ _id: id }, { "$set": { approvalState: false, awaiting: "Answered" } })
 
-        res.status(201).json({ success: true, message: 'Doctor has been accepted' })
+        res.status(201).json({ success: true, message: 'Hospital has been Rejected' })
     } catch (error) {
         res.status(500).json({ "Success": false, "message": error.message });
     }

@@ -194,21 +194,106 @@ describe( "test how to register a doctor", () => {
             expect(result.body).toMatchObject({ success: true }); 
         })
 
-        // Health Record
-        // test("Register user", async () => {
-        //     const result = await supertest(app)
-        //             .post("/vitals/doctors/hcpref")
-        //             .send()
+        // HealthCare Provider Application Request
+        test("Sending application request to hospital", async () => {
+            const result = await supertest(app)
+                    .post("/vitals/doctors/hcpref")
+                    .send({HCP_id: '64bee48408652f71cf8132af'})
+                    .set('Authorization', `Bearer ${value.key2}`)
+                
+                // Store the hcpRef ID under the values object 
+                value.key3 = result.body.message._id
+
+            expect(result.statusCode).toBe(200)
+            expect(result.body.message).toMatchObject({
+                    _id : expect.any(String),
+                    HCP_id: expect.any(String),
+                    doctorID: expect.any(String),
+                    approvalState: false,
+                    awaiting: "Hospital"
+                })
+        })
+
+        test("Sending existing application request to hospital", async () => {
+            const result = await supertest(app)
+                    .post("/vitals/doctors/hcpref")
+                    .send({HCP_id: '64bee48408652f71cf8132af'})
+                    .set('Authorization', `Bearer ${value.key2}`)
         
-        //     expect(result.statusCode).toBe(200)
-        //     expect(result.body.message).toMatchObject({
-        //             _id : expect.any(String),
-        //             firstName: expect.any(String),
-        //             lastName: expect.any(String),
-        //             email: expect.any(String),
-        //             licenseNO: expect.any(String),
-        //         })
-        // })
+            expect(result.statusCode).toBe(401)
+            expect(result.body).toMatchObject({
+                    Success: false, 
+                    message: "This Request already Exists"
+                })
+        })
+
+        test("Get all pending application related to doctor logged", async () => {
+            const result = await supertest(app)
+                .get(`/vitals/doctors/req/`)
+                .set('Authorization', `Bearer ${value.key2}`)
+
+            // Assertions on the response
+            expect(result.status).toBe(201);
+            expect(result.body).toMatchObject({ success: true });
+        })
+
+        test("Grant hospital pending application", async () => {
+            const result = await supertest(app)
+                    .get(`/vitals/doctors/req/${value.key3}`)
+                    .set('Authorization', `Bearer ${value.key2}`)
+
+            // Assertions on the response
+            expect(result.status).toBe(404);
+            expect(result.body).toMatchObject({ 
+                success: false,
+                message: "No pending request found" }) 
+        })
+
+        test("Decline application request", async () => {
+            const result = await supertest(app)
+                    .delete(`/vitals/doctors/req/${value.key3}`)
+                    .set('Authorization', `Bearer ${value.key2}`)
+
+            // Assertions on the response
+            expect(result.status).toBe(404);
+            expect(result.body).toMatchObject({ 
+                success: false,
+                message: "No request found" }) 
+        })
+
+        // Health Care Providers
+        test("Get my Hospitals", async () => {
+            const result = await supertest(app)
+                .get(`/vitals/doctors/hcps/`)
+                .set('Authorization', `Bearer ${value.key2}`)
+
+            // Assertions on the response
+            expect(result.status).toBe(201);
+            expect(result.body).toMatchObject({ success: true });
+        })
+
+        test("Get A Hospitals I'm under", async () => {
+            const result = await supertest(app)
+                .get(`/vitals/doctors/hcps/64bee48408652f71cf8132af`)
+                .set('Authorization', `Bearer ${value.key2}`)
+
+            // Assertions on the response
+            expect(result.status).toBe(201);
+            expect(result.body).toMatchObject({ success: true });
+        })
+
+        test("Wipe Hcp application", async () => {
+            const result = await supertest(app)
+                    .delete(`/vitals/doctors/req/wipe`)
+                    .set('Authorization', `Bearer ${value.key2}`)
+            
+            // console.log(result.body)
+            expect(result.statusCode).toBe(200)
+            expect(result.body.message).toBe('HcpRef Application deleted successfully')
+        })
+
+        // Health Record
+       
         // test("Get all doctor's health Records", async () => {
         //     const result = await supertest(app)
         //             .get(`/vitals/doctors/healthRecords`)
@@ -223,6 +308,7 @@ describe( "test how to register a doctor", () => {
         // })
 
         // Update
+        
         test("Update User", async () => {
             const result = await supertest(app)
                     .patch(`/vitals/doctors/`)
