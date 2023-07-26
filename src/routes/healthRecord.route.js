@@ -15,9 +15,10 @@ const { createHealthRecord,
 
 // HealthRecord CRUD and Queries
 router.post("/create", validate(createSchema), isAuth, doctorAuth, createHealthRecord);
+
+router.delete("/wipe/:id", isAuth, deleteHealthRecord);
 router.delete("/:id", isAuth, doctorAuth, cancelHealthRecord);
 
-// router.delete("/:id", isAuth, doctorAuth, deleteHealthRecord);
 router.get("/all", isAuth, doctorAuth, getAllDoctorHealthRecords);
 router.get("/patients", isAuth, doctorAuth, getAllDoctorsPatients);
 
