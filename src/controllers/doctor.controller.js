@@ -224,7 +224,7 @@ exports.registerHCP = async (req, res) => {
 // Wipe an application from db
 exports.wipeHcpRef = async (req, res) => {
     try {
-        console.log("Heloooo")
+        // console.log("Heloooo")
         const existingUser = await hcpRefService.getAll()
         
         var application_id = [];
