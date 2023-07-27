@@ -111,7 +111,6 @@ describe( "test how to register a user", () => {
                     .post("/vitals/patients/register")
                     .send(userInput)
             
-            console.log(result.body)
             expect(result.statusCode).toBe(400)
             expect(result.body.message).toBe('Patient data already exists')
         })

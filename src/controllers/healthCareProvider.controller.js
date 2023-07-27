@@ -123,14 +123,14 @@ exports.deleteHCP = async (req, res) => {
 // Wipe healthCareProvider
 exports.wipeHCP = async (req, res) => {
     try {
-        console.log(req.user)
+        // console.log(req.user)
         const existingUser = await HealthCareProviderService.getAll({deleted: true})
         
         var hospital_id = [];
         for (let i = 0; i < existingUser.length; i++) {
             hospital_id.push(existingUser[i]._id.toString())
         }
-        console.log('hi')
+        // console.log('hi')
         await HealthCareProviderService.delete({ _id: hospital_id[hospital_id.length -1] });
 
         // for (let i = 0; i < hospital_id.length; i++) {
@@ -176,7 +176,7 @@ exports.getUnverifiedDoctorRequests = async(req, res) => {
             data: docRequests
         })  
     } catch (error) {
-        res.status(500).json({ "Success": false, "message": error.message });
+        res.status(403).json({ "Success": false, "message": error.message });
     }
 }
 
@@ -185,19 +185,23 @@ exports.grantDoctorRequests = async(req, res) => {
     const id = req.params.id
     try {
         const existingHcpRef = await hcpRefService.findOne({ _id: id, awaiting: "Hospital" })
-        if (!existingHcpRef) return res.status(40).json({ success: false, message: "No pending request available at the moment" });
+        if (!existingHcpRef) return res.status(404).json({ success: false, message: "No pending request found " });
 
         // Verify if the editor is the owner and if the id exists
         if (req.user !== existingHcpRef.HCP_id.toString()) {
             return res.status(403).json({ 
-                Success: false, 
+                success: false, 
                 message: "You are not the owner. Contact owner" });
         }
 
         // Update the HCP ref
-        await hcpRefService.update({ _id: id },{"$set":{approvalState: true, awaiting: "Answered"}})
+        const updatedHcpRef = await hcpRefService.update({ _id: id },{"$set":{approvalState: true, awaiting: "Answered"}})
         
-        res.status(201).json({ success: true, message: 'Doctor has been accepted' })  
+        res.status(201).json({ 
+            success: true, 
+            message: 'Doctor has been accepted',
+            HcpRef: updatedHcpRef
+          })  
     } catch (error) {
         res.status(500).json({ "Success": false, "message": error.message });
     }
@@ -212,7 +216,7 @@ exports.removeDoctor = async(req, res) => {
         // Verify if the editor is the owner and if the id exists
         if (req.user !== existingHcpRef.HCP_id.toString()) {
             return res.status(403).json({ 
-                Success: false, 
+                success: false, 
                 message: "You are not the owner. Contact owner" });
         }
 

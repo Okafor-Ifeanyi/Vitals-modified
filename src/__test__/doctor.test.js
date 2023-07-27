@@ -195,7 +195,6 @@ describe( "test how to register a doctor", () => {
                 
                 // Store the hcpRef ID under the values object 
                 value.key3 = result.body.message._id
-
             expect(result.statusCode).toBe(200)
             expect(result.body.message).toMatchObject({
                     _id : expect.any(String),
