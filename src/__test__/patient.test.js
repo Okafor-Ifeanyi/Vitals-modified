@@ -25,7 +25,6 @@ afterAll(async () => {
 });
 
 describe( "test how to register a user", () => {
-    // validate the email and phoneNumber doesn't exist
     // testing my joi verification
     describe("testing joi validation", () => {
         test("Test wrong confirm password", async () => {
