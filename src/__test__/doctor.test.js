@@ -4,6 +4,9 @@ const {connect, closeConnection} = require("./connect")
 require('dotenv').config()
 
 const app = createServer(); 
+const value = {}
+const HCP_id = '64bee48408652f71cf8132af'
+const patient_id = '64c17b4f35f6dc9e8e00a457'
 
 const { doctorPayload,
         wrongPassword,
@@ -55,16 +58,6 @@ describe( "test how to register a doctor", () => {
             expect(result.statusCode).toBe(422)
             expect(result.body.error[0].message).toBe("\"email\" must be a valid email")
         })
-
-        // test("Verification Code Schema", async () => {
-        //     const result = await supertest(app)
-        //             .post("/vitals/doctors/verify/s54@gmail.com")
-        //             .send({code: 09754 })
-            
-        //     // console.log(result.body)
-        //     expect(result.statusCode).toBe(422)
-        //     expect(result.body.error[0].path).toBe("code")
-        // })
 
         test("Login Schema wrong email", async () => {
             const result = await supertest(app)
@@ -137,7 +130,6 @@ describe( "test how to register a doctor", () => {
             })
         })
 
-        const value = {}
         test("Login doctor Successful", async () => {
             const result = await supertest(app)
                 .post("/vitals/doctors/login")
@@ -198,12 +190,11 @@ describe( "test how to register a doctor", () => {
         test("Sending application request to hospital", async () => {
             const result = await supertest(app)
                     .post("/vitals/doctors/hcpref")
-                    .send({HCP_id: '64bee48408652f71cf8132af'})
+                    .send({ HCP_id })
                     .set('Authorization', `Bearer ${value.key2}`)
                 
                 // Store the hcpRef ID under the values object 
                 value.key3 = result.body.message._id
-
             expect(result.statusCode).toBe(200)
             expect(result.body.message).toMatchObject({
                     _id : expect.any(String),
@@ -217,7 +208,7 @@ describe( "test how to register a doctor", () => {
         test("Sending existing application request to hospital", async () => {
             const result = await supertest(app)
                     .post("/vitals/doctors/hcpref")
-                    .send({HCP_id: '64bee48408652f71cf8132af'})
+                    .send({ HCP_id })
                     .set('Authorization', `Bearer ${value.key2}`)
         
             expect(result.statusCode).toBe(401)
@@ -274,7 +265,7 @@ describe( "test how to register a doctor", () => {
 
         test("Get A Hospitals I'm under", async () => {
             const result = await supertest(app)
-                .get(`/vitals/doctors/hcps/64bee48408652f71cf8132af`)
+                .get(`/vitals/doctors/hcps/${HCP_id}`)
                 .set('Authorization', `Bearer ${value.key2}`)
 
             // Assertions on the response
@@ -282,6 +273,7 @@ describe( "test how to register a doctor", () => {
             expect(result.body).toMatchObject({ success: true });
         })
 
+        // Wipe HCP application Request
         test("Wipe Hcp application", async () => {
             const result = await supertest(app)
                     .delete(`/vitals/doctors/req/wipe`)
@@ -307,8 +299,7 @@ describe( "test how to register a doctor", () => {
         //     });
         // })
 
-        // Update
-        
+        // Update Doctor
         test("Update User", async () => {
             const result = await supertest(app)
                     .patch(`/vitals/doctors/`)
@@ -331,6 +322,97 @@ describe( "test how to register a doctor", () => {
             expect(result.body).toMatchObject({ success: false }); // Replace this with your expected response body
         })
 
+        
+    })
+
+    describe("Testing Health Record Route", () => {
+        // create health record path doctors/hcps/:HCPid/healthRecord/create
+        test("Create Health Record", async () => {
+            const result = await supertest(app)
+                    .post(`/vitals/doctors/hcps/${HCP_id}/healthRecord/create`)
+                    .set('Authorization', `Bearer ${value.key2}`)
+                    .send({
+                        patient_id,
+                        disease: "Malaria",
+                        diseaseDetail: "Hot Temperature",
+                        signsAndSymptoms: "Hot Temperature",
+                        labTest: "None"
+                    })
+    
+            value.key4 = result.body.message._id
+            expect(result.statusCode).toBe(200)
+            expect(result.body.message).toMatchObject({
+                patient_id: expect.any(String),
+                _id: expect.any(String),
+                disease: expect.any(String),
+                diseaseDetail: expect.any(String),
+                signsAndSymptoms: expect.any(String)
+            })
+        })
+
+        // get all doctors health Record path doctors/hcps/:HCPid/healthRecord/all
+        test("Get all health Record created by the doctor logged in", async () => {
+            const result = await supertest(app)
+                .get(`/vitals/doctors/hcps/${HCP_id}/healthRecord/all`)
+                .set('Authorization', `Bearer ${value.key2}`)
+
+            // Assertions on the response
+            expect(result.status).toBe(201);
+            expect(result.body).toMatchObject({ success: true });
+        })
+
+        // get all doctors patients path doctors/hcps/:HCPid/healthRecord/patients
+        test("Get all patient attend to by doctor", async () => {
+            const result = await supertest(app)
+                .get(`/vitals/doctors/hcps/${HCP_id}/healthRecord/patients`)
+                .set('Authorization', `Bearer ${value.key2}`)
+
+            // Assertions on the response
+            expect(result.status).toBe(201);
+            expect(result.body).toMatchObject({ success: true });
+        })
+
+        // doctors gets all patients Health Record path doctors/hcps/:HCPid/healthRecord/patients/:id/healthRecord
+        test("Get all patient attend to by doctor", async () => {
+            const result = await supertest(app)
+                .get(`/vitals/doctors/hcps/${HCP_id}/healthRecord/patients/${patient_id}/healthRecord`)
+                .set('Authorization', `Bearer ${value.key2}`)
+
+            // Assertions on the response
+            expect(result.status).toBe(201);
+            expect(result.body).toMatchObject({ success: true });
+        })
+
+        // Delete health Record path doctors/hcps/:HCPid/healthRecord/:id
+        test("Delete health Record", async () => {
+            // console.log(value.key4)
+            const result = await supertest(app)
+                .delete(`/vitals/doctors/hcps/${HCP_id}/healthRecord/${value.key4}`)
+                .set('Authorization', `Bearer ${value.key2}`)
+
+            // Assertions on the response
+            // console.log(result.body)
+            expect(result.status).toBe(200);
+            expect(result.body).toMatchObject({ success: true });
+            expect(result.body.healthRecord).toMatchObject({ 
+                approvalState: true, 
+                status: "Cancelled", 
+                deleted: true 
+            })
+        })
+
+        test("Wipe Health Record", async () => {
+            const result = await supertest(app)
+                .delete(`/vitals/doctors/hcps/${HCP_id}/healthRecord/wipe/${value.key4}`)
+                .set('Authorization', `Bearer ${value.key2}`)
+
+            // Assertion on the response
+            expect(result.status).toBe(200);
+            expect(result.body).toMatchObject({success: true});
+        })
+    })
+
+    describe("Testing delete / Wipe doctor", () => {
         // Delete
         test("Delete User", async () => {
             const result = await supertest(app)
@@ -352,7 +434,7 @@ describe( "test how to register a doctor", () => {
             expect(result.body).toMatchObject({ message: "Doctor does not exist" }); // Replace this with your expected response body
         })
 
-        // Wipe
+        // Wipe DOctors account from db
         test("Wipe user", async () => {
             // console.log(value.key1)
             // console.log(value)

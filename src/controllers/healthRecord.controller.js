@@ -21,16 +21,18 @@ exports.approveHealthRecord = async (req, res) => {
     const healthRecordID = req.params.id
     try {
         // Update the HCP ref
-        const existingHealthRecord = await healthRecordService.findOne({ _id: healthRecordID })
+        const existingHealthRecord = await healthRecordService.findOne({ _id: healthRecordID, deleted: false })
         if (!existingHealthRecord) return res.status(404).json({success: false, message:"HealthRecord not found"})
 
-        await healthRecordService.update({
-            _id: healthRecordID
-        },
+        const updatedHealthRecord = await healthRecordService.update( healthRecordID ,
             {
                 "$set": { approvalState: true, status: "Attended" }
             })
-        return res.status(200).json({ Success: true, message: "This healthRecord has been attended to" })
+        return res.status(200).json({ 
+            Success: true, 
+            message: "This healthRecord has been attended to",
+            healthRecord: updatedHealthRecord
+        })
 
     } catch (error) {
         res.status(500).json({ "Success": false, "message": error.message });
@@ -38,29 +40,36 @@ exports.approveHealthRecord = async (req, res) => {
 }
 // Cancel HealthRecord as a Doctor
 exports.cancelHealthRecord = async (req, res) => {
-    const healthRecordID = req.body
+    const healthRecordID = req.params.id
+
     try {
-        // Update the HCP ref
-        await healthRecordService.update({
-            _id: healthRecordID
-        },
+        const existingHealthRecord = await healthRecordService.findOne({ _id: healthRecordID });
+        
+        if (!existingHealthRecord) return res.status(404).json({ message: "HealthRecord does not exist" });
+        
+        // Update the Health Record
+        const updatedHealthRecord = await healthRecordService.update( healthRecordID,
             {
                 "$set": { approvalState: true, status: "Cancelled", deleted: true }
             })
-        return res.status(200).json({ Success: true, message: "This healthRecord has been Cancelled" })
+
+        return res.status(200).json({ 
+            success: true, 
+            message: "This healthRecord has been Cancelled",
+            healthRecord: updatedHealthRecord
+        })
 
     } catch (error) {
         res.status(500).json({ "Success": false, "message": error.message });
     }
 }
 
-
 // Fetch all healthRecord for doctor
 exports.getAllDoctorHealthRecords = async (req, res) => {
     const doctor_id = req.user
 
     try {
-        const healthRecordData = await healthRecordService.getAll({ doctor_id })
+        const healthRecordData = await healthRecordService.getAll({ doctor_id, deleted: false })
 
         return res.status(201).json({
             success: true,
@@ -94,12 +103,12 @@ exports.getUnattendedHealthRecords = async (req, res) => {
 // Delete healthRecord
 exports.deleteHealthRecord = async (req, res) => {
     const _id = req.params.id
+
     try {
         const existingHealthRecord = await healthRecordService.findOne({ _id });
-        if (!existingHealthRecord)
-        return res.status(404).json({ message: "HealthRecord does not exist" });
+        if (!existingHealthRecord) return res.status(404).json({ message: "HealthRecord does not exist" });
         
-        await healthRecordService.delete({ _id: _id }); // <= change delete status to 'true'
+        await healthRecordService.delete( _id ); // <= change delete status to 'true'
   
       return res.status(200).json({
         success: true,
@@ -218,7 +227,7 @@ exports.docGetAllPatientHealthRecord = async (req, res) => {
     const patient_id = req.params.id
 
     try {
-        const Data = await healthRecordService.getAll({ patient_id })
+        const Data = await healthRecordService.getAll({ patient_id, doctor_id })
 
         return res.status(201).json({
             success: true,
