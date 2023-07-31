@@ -54,9 +54,6 @@ router.get("/hcps/:id", isAuth, doctorAuth, getAHcp);
 router.post("/forgot", validate(forgotPasswordSchema), forgotPassword);
 router.post("/reset/:token", validate(resetPasswordSchema), resetPassword);
 
-// healthRecords
-router.get("doctor/hcps/:id/");
-
 // Global search
 router.get("/all", fetchAllDoctors); 
 router.get("/:id", getDoctorByID); 

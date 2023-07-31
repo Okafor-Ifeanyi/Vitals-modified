@@ -1,7 +1,7 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
-name: Vitals Workflow
+name: MongoDB Tests
 
 on:
   push:
@@ -10,34 +10,41 @@ on:
     branches: [ "main", "develop"  ]
 
 jobs:
-  build:
+  test:
     environment:
       name: vitals
     env:
-      DATABASE_HOSTNAME: ${{secrets.DATABASE_HOSTNAME}}
-      DATABASE_PORT: ${{secrets.DATABASE_PORT}}
-      DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
-      DATABASE_NAME: ${{secrets.DATABASE_NAME}}
-      DATABASE_USERNAME: ${{secrets.DATABASE_USERNAME}}
-      SECRET_KEY: ${{secrets.SECRET_KEY}}
-
+      PORT: ${{secrets.PORT}}
+      MONGODB_URI: ${{secrets.MONGODB_URI}}
+      MONGODB_URI_offline: ${{secrets.MONGODB_URI_offline}}
+      JWT_SECRET: ${{secrets.JWT_SECRET}}
+      CLOUDINARY_CLOUD_NAME: ${{secrets.CLOUDINARY_CLOUD_NAME}}
+      CLOUDINARY_API_KEY: ${{secrets.CLOUDINARY_API_KEY}}
+      CLOUDINARY_API_SECRET: ${{secrets.CLOUDINARY_API_SECRET}}
+      EMAIL_USER: ${{secrets.EMAIL_USER}}
+      EMAIL_PASS: ${{secrets.EMAIL_PASS}}
+      NODE_ENV: ${{secrets.NODE_ENV}}
+  
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [9.x, 14.x, 16.x, 18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        node-version: [14.x, 16.x, 18.x]
 
     steps:
-    - name: pulling git repo
-      uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+      - name: Set up MongoDB Server
+        run: docker run -d -p 27017:27017 --name mongodb mongo:latest
 
-    - name: install all dependencies
-      run: npm i
-    - name: test with Jest
-      run: npm test
+      - name: Set MongoDB Connection String
+        run: echo "MONGODB_URI_testing=mongodb://localhost:27017/DPR_testing" >> $GITHUB_ENV
+
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies and run tests
+        run: |
+          # Install dependencies (e.g., Node.js, npm, etc.)
+          npm install
+          
+          # Run your tests that use the MongoDB connection string
+          npm test

@@ -16,6 +16,7 @@ const { patientPayload,
 
 /* Connecting to the database before each test. */
 beforeAll(async () => {
+    jest.setTimeout(30000)
     await connect();
 });
   
@@ -89,6 +90,7 @@ describe( "test how to register a user", () => {
     describe("Testing Patient Route", () => {
         // Register
         test("Register user", async () => {
+            jest.setTimeout(10000)
             const result = await supertest(app)
                     .post("/vitals/patients/register")
                     .send(userInput)
@@ -184,7 +186,7 @@ describe( "test how to register a user", () => {
 
         test("Get all patients", async () => {
             const result = await supertest(app)
-                    .get(`/vitals/patients//all`)
+                    .get(`/vitals/patients/all`)
                     .set('Authorization', `Bearer ${value.key2}`)
 
             // Assertions on the response

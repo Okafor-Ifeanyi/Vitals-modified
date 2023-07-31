@@ -19,6 +19,7 @@ const { doctorPayload,
 
 /* Connecting to the database before each test. */
 beforeAll(async () => {
+    jest.setTimeout(30000)
     await connect();
 });
   
@@ -95,7 +96,7 @@ describe( "test how to register a doctor", () => {
                     email: expect.any(String),
                     licenseNO: expect.any(String),
                 })
-        })
+        }, 15000)
 
         test("Existing user", async () => {
             const result = await supertest(app)
@@ -185,16 +186,43 @@ describe( "test how to register a doctor", () => {
             expect(result.status).toBe(200);
             expect(result.body).toMatchObject({ success: true }); 
         })
+    })
+    
+    describe("Testing external routes to store data", () => {
+        test("Get all patients", async () => {
+            const result = await supertest(app)
+                    .get(`/vitals/patients/all`)
+                    .set('Authorization', `Bearer ${value.key2}`)
 
+            value.patient_id = result.body.data[0]._id.toString()
+
+            // Assertions on the response
+            expect(result.status).toBe(200);
+            expect(result.body).toMatchObject({ success: true }); 
+        })
+
+        test("Get all Health Care Provider", async () => {
+            const result = await supertest(app)
+                    .get(`/vitals/hcps/all`)
+
+            value.HCP_id = result.body.data[0]._id.toString()
+            // Assertions on the response
+            expect(result.status).toBe(200);
+            expect(result.body).toMatchObject({ success: true }); 
+        })
+    })
+
+    describe("Testing HCP route", () => {
         // HealthCare Provider Application Request
         test("Sending application request to hospital", async () => {
             const result = await supertest(app)
                     .post("/vitals/doctors/hcpref")
-                    .send({ HCP_id })
+                    .send({ HCP_id: value.HCP_id })
                     .set('Authorization', `Bearer ${value.key2}`)
                 
-                // Store the hcpRef ID under the values object 
-                value.key3 = result.body.message._id
+            // Store the hcpRef ID under the values object 
+            value.key3 = result.body.message._id
+
             expect(result.statusCode).toBe(200)
             expect(result.body.message).toMatchObject({
                     _id : expect.any(String),
@@ -208,7 +236,7 @@ describe( "test how to register a doctor", () => {
         test("Sending existing application request to hospital", async () => {
             const result = await supertest(app)
                     .post("/vitals/doctors/hcpref")
-                    .send({ HCP_id })
+                    .send({ HCP_id: value.HCP_id })
                     .set('Authorization', `Bearer ${value.key2}`)
         
             expect(result.statusCode).toBe(401)
@@ -265,7 +293,7 @@ describe( "test how to register a doctor", () => {
 
         test("Get A Hospitals I'm under", async () => {
             const result = await supertest(app)
-                .get(`/vitals/doctors/hcps/${HCP_id}`)
+                .get(`/vitals/doctors/hcps/${value.HCP_id}`)
                 .set('Authorization', `Bearer ${value.key2}`)
 
             // Assertions on the response
@@ -321,18 +349,16 @@ describe( "test how to register a doctor", () => {
             expect(result.status).toBe(403);
             expect(result.body).toMatchObject({ success: false }); // Replace this with your expected response body
         })
-
-        
     })
 
     describe("Testing Health Record Route", () => {
         // create health record path doctors/hcps/:HCPid/healthRecord/create
         test("Create Health Record", async () => {
             const result = await supertest(app)
-                    .post(`/vitals/doctors/hcps/${HCP_id}/healthRecord/create`)
+                    .post(`/vitals/doctors/hcps/${value.HCP_id}/healthRecord/create`)
                     .set('Authorization', `Bearer ${value.key2}`)
                     .send({
-                        patient_id,
+                        patient_id: value.patient_id,
                         disease: "Malaria",
                         diseaseDetail: "Hot Temperature",
                         signsAndSymptoms: "Hot Temperature",
@@ -353,7 +379,7 @@ describe( "test how to register a doctor", () => {
         // get all doctors health Record path doctors/hcps/:HCPid/healthRecord/all
         test("Get all health Record created by the doctor logged in", async () => {
             const result = await supertest(app)
-                .get(`/vitals/doctors/hcps/${HCP_id}/healthRecord/all`)
+                .get(`/vitals/doctors/hcps/${value.HCP_id}/healthRecord/all`)
                 .set('Authorization', `Bearer ${value.key2}`)
 
             // Assertions on the response
@@ -364,7 +390,7 @@ describe( "test how to register a doctor", () => {
         // get all doctors patients path doctors/hcps/:HCPid/healthRecord/patients
         test("Get all patient attend to by doctor", async () => {
             const result = await supertest(app)
-                .get(`/vitals/doctors/hcps/${HCP_id}/healthRecord/patients`)
+                .get(`/vitals/doctors/hcps/${value.HCP_id}/healthRecord/patients`)
                 .set('Authorization', `Bearer ${value.key2}`)
 
             // Assertions on the response
@@ -375,7 +401,7 @@ describe( "test how to register a doctor", () => {
         // doctors gets all patients Health Record path doctors/hcps/:HCPid/healthRecord/patients/:id/healthRecord
         test("Get all patient attend to by doctor", async () => {
             const result = await supertest(app)
-                .get(`/vitals/doctors/hcps/${HCP_id}/healthRecord/patients/${patient_id}/healthRecord`)
+                .get(`/vitals/doctors/hcps/${value.HCP_id}/healthRecord/patients/${value.patient_id}/healthRecord`)
                 .set('Authorization', `Bearer ${value.key2}`)
 
             // Assertions on the response
@@ -387,7 +413,7 @@ describe( "test how to register a doctor", () => {
         test("Delete health Record", async () => {
             // console.log(value.key4)
             const result = await supertest(app)
-                .delete(`/vitals/doctors/hcps/${HCP_id}/healthRecord/${value.key4}`)
+                .delete(`/vitals/doctors/hcps/${value.HCP_id}/healthRecord/${value.key4}`)
                 .set('Authorization', `Bearer ${value.key2}`)
 
             // Assertions on the response
@@ -403,7 +429,7 @@ describe( "test how to register a doctor", () => {
 
         test("Wipe Health Record", async () => {
             const result = await supertest(app)
-                .delete(`/vitals/doctors/hcps/${HCP_id}/healthRecord/wipe/${value.key4}`)
+                .delete(`/vitals/doctors/hcps/${value.HCP_id}/healthRecord/wipe/${value.key4}`)
                 .set('Authorization', `Bearer ${value.key2}`)
 
             // Assertion on the response
@@ -436,14 +462,10 @@ describe( "test how to register a doctor", () => {
 
         // Wipe DOctors account from db
         test("Wipe user", async () => {
-            // console.log(value.key1)
-            // console.log(value)
-
             const result = await supertest(app)
                     .delete(`/vitals/doctors/wipe/${value.key1}`)
                     .set('Authorization', `Bearer ${value.key2}`)
             
-            // console.log(result.body)
             expect(result.statusCode).toBe(200)
             expect(result.body.message).toBe('doctor deleted successfully')
         })

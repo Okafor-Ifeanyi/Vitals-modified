@@ -21,6 +21,7 @@ const { hospitalPayload,
 
 /* Connecting to the database before each test. */
 beforeAll(async () => {
+    jest.setTimeout(30000)
     await connect();
 });
   
@@ -187,6 +188,57 @@ describe( "test how to register a hospital", () => {
             expect(result.body).toMatchObject({ success: true }); 
         })
 
+        test("Update User", async () => {
+            const result = await supertest(app)
+                    .patch(`/vitals/hcps/`)
+                    .set('Authorization', `Bearer ${value.key2}`)
+                    .send(hospitalUpdate)
+            
+            // Assertions on the response
+            expect(result.status).toBe(200);
+            expect(result.body).toMatchObject({ success: true }); // Replace this with your expected response body
+        })
+
+        test("Update User with existing Registration Number", async () => {
+            const result = await supertest(app)
+                    .patch(`/vitals/hcps/`)
+                    .set('Authorization', `Bearer ${value.key2}`)
+                    .send(hospitalUpdate)
+            
+            // Assertions on the response
+            expect(result.status).toBe(403);
+            expect(result.body).toMatchObject({ success: false }); // Replace this with your expected response body
+        })
+    })
+    
+    // get all the hcpref in db /hcpref/all
+    describe("Testing external routes to store data", () => {
+        test("Get all hcpref", async () => {
+            const result = await supertest(app)
+                    .get(`/vitals/hcps/hcpref/all`)
+                    .set('Authorization', `Bearer ${value.key2}`)
+
+            value.HcpRef_id = result.body.data[0]._id.toString()
+            // console.log(value.HcpRef_id)
+            // Assertions on the response
+            expect(result.status).toBe(200);
+            expect(result.body).toMatchObject({ success: true }); 
+        })
+
+        test("Get all doctors", async () => {
+            const result = await supertest(app)
+                    .get(`/vitals/doctors/all`)
+
+            value.doctor_id = result.body.data[0]._id.toString()
+            console.log(value.doctor_id)
+
+            // Assertions on the response
+            expect(result.status).toBe(200);
+            expect(result.body).toMatchObject({ success: true }); 
+        })
+    })
+
+    describe("Testing hospital Route - Health Record", () => {
         // Health Record
         // test("Register user", async () => {
         //     const result = await supertest(app)
@@ -216,50 +268,54 @@ describe( "test how to register a hospital", () => {
         // })
 
         // Update
-        test("Update User", async () => {
+        test("Grant doc application - request not found", async () => {
             const result = await supertest(app)
-                    .patch(`/vitals/hcps/`)
-                    .set('Authorization', `Bearer ${value.key2}`)
-                    .send(hospitalUpdate)
-            
-            // Assertions on the response
-            expect(result.status).toBe(200);
-            expect(result.body).toMatchObject({ success: true }); // Replace this with your expected response body
-        })
-
-        test("Update User with existing Registration Number", async () => {
-            const result = await supertest(app)
-                    .patch(`/vitals/hcps/`)
-                    .set('Authorization', `Bearer ${value.key2}`)
-                    .send(hospitalUpdate)
-            
-            // Assertions on the response
-            expect(result.status).toBe(403);
-            expect(result.body).toMatchObject({ success: false }); // Replace this with your expected response body
-        })
-
-        test("Grant doc application - Not the owner", async () => {
-            const result = await supertest(app)
-                    .get(`/vitals/hcps/req/${HcpRef_id}`)
+                    .get(`/vitals/hcps/req/${value.doctor_id}`)
                     .set('Authorization', `Bearer ${value.key2}`)
 
             // Assertions on the response
-            expect(result.status).toBe(403);
+            expect(result.status).toBe(404);
             expect(result.body).toMatchObject({ 
-                success: false,  message: "You are not the owner. Contact owner" });
+                success: false, 
+                message: "No pending request found" });
+            
+        })
+
+        test("Grant doc application - Successful", async () => {
+            const result = await supertest(app)
+                    .get(`/vitals/hcps/req/${value.HcpRef_id}`)
+                    .set('Authorization', `Bearer ${value.key2}`)
+
+            // Assertions on the response
+            expect(result.status).toBe(201);
+            expect(result.body).toMatchObject({ 
+                success: true, 
+                message: "Doctor has been accepted" });
             
         })
 
         // remove doctor from hospital del /req/:id
-        test("remove doc from hospital - Not the owner", async () => {
+        test("remove doc from hospital - Successful", async () => {
             const result = await supertest(app)
-                    .delete(`/vitals/hcps/req/${HcpRef_id}`)
+                    .delete(`/vitals/hcps/req/${value.HcpRef_id}`)
                     .set('Authorization', `Bearer ${value.key2}`)
 
             // Assertions on the response
-            expect(result.status).toBe(403);
+            expect(result.status).toBe(201);
             expect(result.body).toMatchObject({ 
-                success: false,  message: "You are not the owner. Contact owner" });
+                success: true,  message: "Doctor has been deleted" });
+            
+        })
+
+        test("remove doc from hospital - request not found", async () => {
+            const result = await supertest(app)
+                    .delete(`/vitals/hcps/req/${value.doctor_id}`)
+                    .set('Authorization', `Bearer ${value.key2}`)
+
+            // Assertions on the response
+            expect(result.status).toBe(404);
+            expect(result.body).toMatchObject({ 
+                success: false,  message: "No pending request found" });
             
         })
 
@@ -280,7 +336,7 @@ describe( "test how to register a hospital", () => {
         // get a doctor /doctors/:id
         test("Get doctors by id", async () => {
             const result = await supertest(app)
-                    .get(`/vitals/hcps/doctors/${doctor_id}`)
+                    .get(`/vitals/hcps/doctors/${value.doctor_id}`)
 
             // Assertions on the response
             expect(result.status).toBe(201);
