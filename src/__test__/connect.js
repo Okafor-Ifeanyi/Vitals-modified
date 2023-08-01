@@ -1,4 +1,3 @@
-const { func } = require("joi")
 const mongoose = require("mongoose")
 require('dotenv').config()
 

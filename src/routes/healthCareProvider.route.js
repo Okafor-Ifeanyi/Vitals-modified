@@ -18,6 +18,7 @@ const { register,
         grantDoctorRequests,
         getHospitalByID,
         fetchAllHospitals,
+        fetchAllhcpRef,
         getUnverifiedDoctorRequests } = require('../controllers/healthCareProvider.controller');
         
 // HealthCare Provider Requests
@@ -31,6 +32,7 @@ router.get("/", isAuth, healthCareProviderAuth, getMyProfile);
 router.get("/req/", isAuth, healthCareProviderAuth, getUnverifiedDoctorRequests);
 router.get("/req/:id", isAuth, healthCareProviderAuth, grantDoctorRequests);
 router.delete("/req/:id", isAuth, healthCareProviderAuth, removeDoctor);
+router.get("/hcpref/all", isAuth, fetchAllhcpRef)
 
 // Doctors Requests
 router.get("/doctors", isAuth, healthCareProviderAuth, getVerifiedDoctors);

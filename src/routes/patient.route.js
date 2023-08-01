@@ -30,7 +30,7 @@ router.post("/register", validate(RegisterSchema), register);
 router.patch("/", validate(UpdateSchema), isAuth, updatePatient);
 router.delete("/", isAuth, deletePatient);
 router.delete("/wipe/:id", isAuth, wipePatient);
-router.get("/all", isAuth, fetchAllPatients);
+router.get("/all", fetchAllPatients);
 router.get("/", isAuth, getMyProfile);
 
 // HealthRecord
