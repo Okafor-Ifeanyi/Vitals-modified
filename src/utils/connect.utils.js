@@ -3,9 +3,8 @@ require('dotenv').config()
 
 
 async function connect () {
-    
     // Database Connection 
-    await mongoose.connect(process.env.MONGODB_URI_offline, {
+    await mongoose.connect(process.env.MONGODB_URI, {
         useNewUrlParser: true, 
         useUnifiedTopology: true,
         family: 4,
