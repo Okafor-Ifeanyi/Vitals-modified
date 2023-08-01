@@ -213,6 +213,21 @@ describe( "test how to register a hospital", () => {
     
     // get all the hcpref in db /hcpref/all
     describe("Testing external routes to store data", () => {
+        test("Creating doctor - doctor route", async () => {
+            const result = await supertest(app)
+                    .post("/vitals/doctors/register")
+                    .send({ 
+                        firstName: "Jim",
+                        lastName: "Porter",
+                        email: "jimporter@gmail.com",
+                        password: "duttyy",
+                        confirm_password: "duttyy",
+                        licenseNO: "MDCN/R/2345", 
+                        specialty: "Nursing Services" 
+                    })
+
+            expect(result.status).toBe(200);            
+        })
         test("Get all hcpref", async () => {
             const result = await supertest(app)
                     .get(`/vitals/hcps/hcpref/all`)
@@ -388,6 +403,17 @@ describe( "test how to register a hospital", () => {
             expect(result.body).toMatchObject({ 
                 success: true,
                 totalNo: expect.any(Number) }); 
+        })
+
+        // Wipe HCP application Request
+        test("Wipe Hcp application - doctor route", async () => {
+            const result = await supertest(app)
+                    .delete(`/vitals/doctors/req/wipe`)
+                    .set('Authorization', `Bearer ${value.key2}`)
+            
+            // console.log(result.body)
+            expect(result.statusCode).toBe(200)
+            expect(result.body.message).toBe('HcpRef Application deleted successfully')
         })
 
         // Delete
