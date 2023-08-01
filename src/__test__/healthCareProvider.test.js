@@ -245,7 +245,6 @@ describe( "test how to register a hospital", () => {
                     .get(`/vitals/doctors/all`)
 
             value.doctor_id = result.body.data[0]._id.toString()
-            console.log(value.doctor_id)
 
             // Assertions on the response
             expect(result.status).toBe(200);
@@ -302,10 +301,10 @@ describe( "test how to register a hospital", () => {
                     .set('Authorization', `Bearer ${value.key2}`)
 
             // Assertions on the response
-            expect(result.status).toBe(201);
+            expect(result.status).toBe(403);
             expect(result.body).toMatchObject({ 
-                success: true, 
-                message: "Doctor has been accepted" });
+                success: false, 
+                message: "You are not the owner. Contact owner" });
             
         })
 
@@ -316,9 +315,9 @@ describe( "test how to register a hospital", () => {
                     .set('Authorization', `Bearer ${value.key2}`)
 
             // Assertions on the response
-            expect(result.status).toBe(201);
+            expect(result.status).toBe(403);
             expect(result.body).toMatchObject({ 
-                success: true,  message: "Doctor has been deleted" });
+                success: false,  message: "You are not the owner. Contact owner" });
             
         })
 
