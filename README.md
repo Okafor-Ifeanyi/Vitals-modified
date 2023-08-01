@@ -12,9 +12,25 @@
 
 ## How to start code
 1.  Clone or Download repository
-2.  Setup .env file => `port`, `mongo_uri`, `jwt _secret`, `cloudinary`
+2.  Setup .env file
+```json
+{
+    "PORT": "port of choice", // default: 5000
+    "MONGO_URI": "db connection string",
+    "MONGO_URI_testing": "test db connection string",
+    "JWT_SECRET": "Jwt token",
+    "CLOUDINARY_CLOUD_NAME": "Image storage setup",
+    "CLOUDINARY_API_KEY": "Image storage setup",
+    "CLOUDINARY_API_SECRET": "Image storage setup",   
+    "EMAIL_USER": "email address for verfications",
+    "EMAIL_PASS": "your email password",
+    "NODE_ENV": "test",
+}
+```
 2.  run `npm install`
-3.  run `npm start`
+3.  setup mongoDB connection
+4.  run `npm test`
+5.  run `npm start`
 >   DPR-12-BE is ready for use
 
 ## Model Diagram
