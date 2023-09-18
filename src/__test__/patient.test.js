@@ -3,6 +3,7 @@ const createServer = require("../utils/server.utils")
 const {connect, closeConnection} = require("./connect")
 require('dotenv').config()
 
+
 const app = createServer(); 
 
 const { patientPayload,
@@ -25,7 +26,7 @@ afterAll(async () => {
     await closeConnection();
 });
 
-describe( "test how to register a user", () => {
+describe( "Test User routes", () => {
     // testing my joi verification
     describe("testing joi validation", () => {
         test("Test wrong confirm password", async () => {
