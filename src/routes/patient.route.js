@@ -1,5 +1,5 @@
-const router = require("express").Router();
 const validate = require("../middlewares/validate.middleware");
+const router = require("express").Router();
 const { isAuth } = require("../middlewares/authentication.middleware");
 const { patientAuth } = require('../middlewares/path.middleware')
 const {
